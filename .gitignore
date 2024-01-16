@@ -1,0 +1,11 @@
+
+# ignore all autosave files
+*.asv
+
+# ignore everything except scripts and data
+/StanApproach/
+/Experimental Interface/
+**/Archive/
+
+# ignore raw data
+/Data/Raw Data/
