@@ -9,4 +9,4 @@ Draft paper submitted, available on the bioRxiv here: XXXXX.
 
 ### Dependencies
 You may need to install certain packages in MATLAB, such as the Signal Processing Toolbox, in order to run this code.
-Additionally, you may need to compile SPM (see instructions [here|https://www.fil.ion.ucl.ac.uk/spm/doc/manual.pdf]).
+Additionally, you may need to compile SPM (see instructions https://www.fil.ion.ucl.ac.uk/spm/doc/manual.pdf.
