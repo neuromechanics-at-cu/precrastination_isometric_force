@@ -26,7 +26,6 @@ for nn = 1:length(modelstocompare)
     choiceforcerate_table = [];
     % For Each Subject
     for jj = 1:length(subjs)
-    
     %     gamma_physical = sol_reduced(selectedmodel(jj),jj,1);
         gamma_physical = sol_reduced(1,selectedmodel(jj),jj);
     %     gamma_task = sol_reduced(selectedmodel(jj),jj,2);
@@ -114,20 +113,23 @@ for nn = 1:length(modelstocompare)
                 for kk = 1:length(Mchoice{jj}.delibtime_nooutliers)
                     if ~isnan(Mchoice{jj}.delibtime_nooutliers(kk))
                         choice_time_table = [choice_time_table;
-                                         jj,abs(Mchoice{jj}.abs_delta_utility_minimaxed(kk)),Mchoice{jj}.delibtime_nooutliers(kk),Mchoice{jj}.delibtime_nooutliers_normed(kk),Mchoice{jj}.delib_time_zscored_nooutliers(kk)];
+%                                          jj,abs(Mchoice{jj}.abs_delta_utility_minimaxed(kk)),Mchoice{jj}.delibtime_nooutliers(kk),Mchoice{jj}.delibtime_nooutliers_normed(kk),Mchoice{jj}.delib_time_zscored_nooutliers(kk)];
+                                         jj,Mchoice{jj}.trialnumber_bysession(kk),abs(Mchoice{jj}.abs_delta_utility_minimaxed(kk)),Mchoice{jj}.delibtime_nooutliers(kk),Mchoice{jj}.delibtime_nooutliers_normed(kk),Mchoice{jj}.delib_time_zscored_nooutliers(kk)];
                 
                     end
                 end
             else 
                 for kk = 1:length(Mchoice{jj}.delibtime)
                     choice_time_table = [choice_time_table;
-                                     jj,abs(Mchoice{jj}.abs_delta_utility_minimaxed(kk)),Mchoice{jj}.delibtime(kk),Mchoice{jj}.delibtime_normed(kk),Mchoice{jj}.delib_time_zscored(kk)];
+%                                      jj,abs(Mchoice{jj}.abs_delta_utility_minimaxed(kk)),Mchoice{jj}.delibtime(kk),Mchoice{jj}.delibtime_normed(kk),Mchoice{jj}.delib_time_zscored(kk)];
+                                     jj,Mchoice{jj}.trialnumber_bysession(kk),abs(Mchoice{jj}.abs_delta_utility_minimaxed(kk)),Mchoice{jj}.delibtime(kk),Mchoice{jj}.delibtime_normed(kk),Mchoice{jj}.delib_time_zscored(kk)];
     
                 end    
             end
         end
     end
-    choice_time_table = array2table(choice_time_table,'VariableNames',{'subj','abs_dUtil_normed','delib_time','normed_delib_time','zscored_delib_time'});
+%     choice_time_table = array2table(choice_time_table,'VariableNames',{'subj','abs_dUtil_normed','delib_time','normed_delib_time','zscored_delib_time'});
+    choice_time_table = array2table(choice_time_table,'VariableNames',{'subj','trial_num','abs_dUtil_normed','delib_time','normed_delib_time','zscored_delib_time'});
     choice_time_table.subj = categorical(choice_time_table.subj);
 
     glme_mdl = fitlme(choice_time_table,'delib_time ~ abs_dUtil_normed + (1|subj)')

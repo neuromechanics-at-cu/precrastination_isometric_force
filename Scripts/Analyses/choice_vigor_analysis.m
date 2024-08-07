@@ -124,24 +124,33 @@ for nn = 1:length(modelstocompare)
             if include_outlier_trials == 0
                 for kk = 1:length(Mchoice{jj}.max_dxpx_dt_nooutliers)
                     if ~isnan(Mchoice{jj}.delibtime_nooutliers(kk))
+%                         choiceforcerate_table = [choiceforcerate_table;
+%                                              jj,Mchoice{jj}.abs_delta_utility_minimaxed(kk),...
+%                                              Mchoice{jj}.max_dxpx_dt_nooutliers(kk),log(Mchoice{jj}.max_dxpx_dt_nooutliers(kk)),...
+%                                              Mchoice{jj}.max_dxpx_dt_normed_nooutliers(kk),Mchoice{jj}.max_dxpx_dt_zscored_nooutliers(kk)];
                         choiceforcerate_table = [choiceforcerate_table;
-                                             jj,Mchoice{jj}.abs_delta_utility_minimaxed(kk),...
+                                             jj,Mchoice{jj}.trialnumber_bysession(kk),Mchoice{jj}.abs_delta_utility_minimaxed(kk),...
                                              Mchoice{jj}.max_dxpx_dt_nooutliers(kk),log(Mchoice{jj}.max_dxpx_dt_nooutliers(kk)),...
-                                             Mchoice{jj}.max_dxpx_dt_normed_nooutliers(kk),Mchoice{jj}.max_dxpx_dt_zscored_nooutliers(kk)];
+                                             Mchoice{jj}.max_dxpx_dt_normed_nooutliers(kk),Mchoice{jj}.max_dxpx_dt_zscored_nooutliers(kk)];                    
                     end
                 end
             else 
                 for kk = 1:length(Mchoice{jj}.delibtime)
+%                     choiceforcerate_table = [choiceforcerate_table;
+%                                              jj,Mchoice{jj}.abs_delta_utility_minimaxed(kk),...
+%                                              Mchoice{jj}.max_dxpx_dt(kk),log(Mchoice{jj}.max_dxpx_dt(kk)),...
+%                                              Mchoice{jj}.max_dxpx_dt_normed(kk),Mchoice{jj}.max_dxpx_dt_zscored(kk)];    
                     choiceforcerate_table = [choiceforcerate_table;
-                                             jj,Mchoice{jj}.abs_delta_utility_minimaxed(kk),...
+                                             jj,Mchoice{jj}.trialnumber_bysession(kk),Mchoice{jj}.abs_delta_utility_minimaxed(kk),...
                                              Mchoice{jj}.max_dxpx_dt(kk),log(Mchoice{jj}.max_dxpx_dt(kk)),...
-                                             Mchoice{jj}.max_dxpx_dt_normed(kk),Mchoice{jj}.max_dxpx_dt_zscored(kk)];    
+                                             Mchoice{jj}.max_dxpx_dt_normed(kk),Mchoice{jj}.max_dxpx_dt_zscored(kk)];                    
                 end    
             end
         end
 
     end
-    choiceforcerate_table = array2table(choiceforcerate_table,'VariableNames',{'subj','abs_dUtil_normed','abs_max_rate','log_abs_max_rate','normed_max_rate','zscored_max_rate'});
+%     choiceforcerate_table = array2table(choiceforcerate_table,'VariableNames',{'subj','abs_dUtil_normed','abs_max_rate','log_abs_max_rate','normed_max_rate','zscored_max_rate'});
+    choiceforcerate_table = array2table(choiceforcerate_table,'VariableNames',{'subj','trial_num','abs_dUtil_normed','abs_max_rate','log_abs_max_rate','normed_max_rate','zscored_max_rate'});
   
     choiceforcerate_table.subj = categorical(choiceforcerate_table.subj);
 

@@ -18,7 +18,7 @@ reward = 0;
 
 include_outlier_trials = 0; 
 include_outlier_subjs = 1;
-modelstocompare = 1:4;
+modelstocompare = 1:6;
 
 addpath('../Utility Model Fitting/')
 addpath('../Supporting Functions/')

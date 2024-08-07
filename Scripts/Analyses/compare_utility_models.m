@@ -11,13 +11,15 @@ if ~exist('subjs')
     load('../../Data/Processed Data/processed_data.mat','subjs')
 end
 
+
+
 AIC = nan(length(modeltypes(modelstocompare)),length(subjs));
-BIC = nan(length(modeltypes(modelstocompare)),length(subjs));
+% BIC = nan(length(modeltypes(modelstocompare)),length(subjs));
 Likelihood = -1*fval;
 for ii = 1:length(modeltypes(modelstocompare))
     for jj = 1:length(subjs)
         AIC(ii,jj) = 2*freeparams(ii) - 2*Likelihood(ii,jj);
-        BIC(ii,jj) = Likelihood(ii,jj) - freeparams(ii)*log(sum(~isnan(Mchoice{jj}.choice)))/2;
+%         BIC(ii,jj) = Likelihood(ii,jj) - freeparams(ii)*log(sum(~isnan(Mchoice{jj}.choice)))/2;
     end
 end
 AIC = -1*AIC'; % Multiply this by -1. SPM uses a negative BIC, where max is better.

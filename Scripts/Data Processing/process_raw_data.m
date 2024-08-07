@@ -65,4 +65,14 @@ Mchoice_B = processData_Choice('../../Data/Raw Data/Choice/Valley',subjs,mvc2B,e
 
 % Save Data Struct
 clear M_A M_B Mchoice_A Mchoice_B
-save('../../Data/Processed Data/processed_from_raw.mat','-v7.3')
+
+% If Uploading to GitHub, Remove framedata
+if 1 
+    for ii = 1:length(subjs)
+        M{ii}.framedata = [];
+        Mchoice{ii}.framedata = [];
+    end
+    save('../../Data/Processed Data/processed_data.mat','-v7.3')
+else
+    save('../../Data/Processed Data/processed_from_raw.mat','-v7.3')
+end

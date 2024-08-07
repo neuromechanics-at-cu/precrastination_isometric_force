@@ -5,6 +5,7 @@
 # ignore everything except scripts and data
 /StanApproach/
 /Experimental Interface/
+/SuperComputerArchive/
 **/Archive/
 
 # ignore raw data

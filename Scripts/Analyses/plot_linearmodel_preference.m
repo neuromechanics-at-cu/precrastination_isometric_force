@@ -103,10 +103,12 @@ for jj = 1:2 % Hill or Valley
             (TABLE.trialtype == categorical(jj)) & ...
             (TABLE.delta_duration == unique_delta_duration(nn)) & ...
             (TABLE.choicetypecount >= nChoice),:).choseLeft);
+
             n_trials_delta_onset_byDur_all_subj(jj,nn,kk) = size(TABLE((TABLE.delta_onset == unique_delta_onset(kk)) & ...
             (TABLE.trialtype == categorical(jj)) & ...
             (TABLE.delta_duration == unique_delta_duration(nn)) & ...
             (TABLE.choicetypecount >= nChoice),:).choseLeft,1);
+
             se_pChoice_delta_onset_byDur_all_subj(jj,nn,kk) = nanstd(TABLE((TABLE.delta_onset == unique_delta_onset(kk)) & ...
             (TABLE.trialtype == categorical(jj)) & ...
             (TABLE.delta_duration == unique_delta_duration(nn)) & ...
@@ -224,3 +226,92 @@ end
 title('Valleys')
 
 
+
+%% Plot All Subjects, for Hill / Valley When Durations are equal
+
+possible_combos = [4*ones(1,9),2*ones(1,10),zeros(1,10),-2*ones(1,10),-4*ones(1,9);
+                        -10:2:6,-10:2:8,-10:2:-2,2:2:10,-8:2:10,-6:2:10]';
+
+model_table = table();
+model_table.delta_duration = possible_combos(:,1);
+model_table.delta_onset = possible_combos(:,2);
+model_table.subj = categorical(zeros(size(possible_combos,1),1));
+model_table.hill_or_valley = categorical(ones(size(possible_combos,1),1)); % Hills First
+[y_pred_delta_onset_hill] = predict(mdl_choice,model_table);
+
+plot_colors = cool(length(unique(model_table.delta_duration)));
+
+pChoices = nan(length(subjs),2,length(unique_delta_duration),length(unique_delta_onset));
+for jj = 1:2 % Hill or Valley
+    for kk = 1:length(unique_delta_duration)
+        for mm = 1:length(unique_delta_onset)
+%         delta_onsets_temp = possible_combos(possible_combos(:,1) == delta_durations(3),2);
+            for nn = 1:length(subjs)
+%             for mm = 1:length(delta_onsets_temp)
+                pChoices(nn,jj,kk,mm) = nanmean(TABLE((TABLE.delta_duration == unique_delta_duration(kk)) & ...
+                (TABLE.trialtype == categorical(jj)) & ...
+                (TABLE.subj == categorical(nn)) & ...
+                (TABLE.delta_onset == unique_delta_onset(mm)) & ...
+                (TABLE.choicetypecount >= nChoice),:).choseLeft);
+            end
+        end
+    end
+end
+
+
+% Hills
+figure(305)
+hold on
+title('Hills')
+% All Individuals
+for nn = 1:length(subjs)
+    ind = ~isnan(squeeze(pChoices(nn,1,3,:)));
+    plot(unique_delta_onset(ind),squeeze(pChoices(nn,1,3,ind)),'LineWidth',2,'Color',[0,0,0,0.05])    
+    %     plot(possible_combos(possible_combos(:,1) == delta_durations(3),2),rmmissing(squeeze(pChoices(nn,1,3,:))),'LineWidth',2,'Color',[0,0,0,0.05])
+end
+% Mean Subj Data
+ind = ~isnan(squeeze(mean_pChoice_delta_onset_byDur_all_subj(1,3,:))); %NEW EXP?
+plot(unique_delta_onset(ind),squeeze(mean_pChoice_delta_onset_byDur_all_subj(1,3,ind)),'color',plot_colors(3,:),'LineWidth',2)
+errorbar(unique_delta_onset(ind),squeeze(mean_pChoice_delta_onset_byDur_all_subj(1,3,ind)),squeeze(se_pChoice_delta_onset_byDur_all_subj(1,3,ind)),'k','Linewidth',2,'LineStyle','None')%SE
+% Model Prediction
+plot(possible_combos(possible_combos(:,1) == delta_durations(3),2),y_pred_delta_onset_hill(possible_combos(:,1) == delta_durations(3)),':','Color',plot_colors(3,:),'LineWidth',3)
+
+
+% Valleys
+model_table.hill_or_valley = categorical(zeros(size(possible_combos,1),1)); 
+[y_pred_delta_onset_valley] = predict(mdl_choice,model_table);
+
+figure(306)
+hold on
+title('Valleys')
+% All Individuals
+for nn = 1:length(subjs)
+    ind = ~isnan(squeeze(pChoices(nn,2,3,:)));
+    plot(unique_delta_onset(ind),squeeze(pChoices(nn,2,3,ind)),'LineWidth',2,'Color',[0,0,0,0.05])    
+%     plot(possible_combos(possible_combos(:,1) == delta_durations(3),2),rmmissing(squeeze(pChoices(nn,2,3,:))),'LineWidth',2,'Color',[0,0,0,0.05])
+end
+% Mean Subj Data
+ind = ~isnan(squeeze(mean_pChoice_delta_onset_byDur_all_subj(2,3,:))); %NEW EXP?
+plot(unique_delta_onset(ind),squeeze(mean_pChoice_delta_onset_byDur_all_subj(2,3,ind)),'color',plot_colors(3,:),'LineWidth',2)
+errorbar(unique_delta_onset(ind),squeeze(mean_pChoice_delta_onset_byDur_all_subj(2,3,ind)),squeeze(se_pChoice_delta_onset_byDur_all_subj(2,3,ind)),'k','Linewidth',2,'LineStyle','None')%SE
+% Model Prediction
+plot(possible_combos(possible_combos(:,1) == delta_durations(3),2),y_pred_delta_onset_valley(possible_combos(:,1) == delta_durations(3)),':','Color',plot_colors(3,:),'LineWidth',3)
+
+
+
+for jj = 1:2 % Hill or Valley
+%     subplot(2,1,jj)
+    figure(302+jj)
+    hold on
+    for kk = 1:length(unique_delta_duration)
+%         ind = ~isnan(squeeze(pChoice_delta_onset_byDur_all_subj(jj,kk,:)));
+        ind = ~isnan(squeeze(mean_pChoice_delta_onset_byDur_all_subj(jj,kk,:))); %NEW EXP?
+        plot(unique_delta_onset(ind),squeeze(mean_pChoice_delta_onset_byDur_all_subj(jj,kk,ind)),'color',plot_colors(kk,:),'LineWidth',2)
+        errorbar(unique_delta_onset(ind),squeeze(mean_pChoice_delta_onset_byDur_all_subj(jj,kk,ind)),squeeze(se_pChoice_delta_onset_byDur_all_subj(jj,kk,ind)),'k','Linewidth',2,'LineStyle','None')%SE
+        %         plot(unique_delta_onset(ind),squeeze(pChoice_delta_onset_byDur_all_subj(jj,kk,ind)),'.','color',plot_colors(kk,:),'MarkerSize',10)
+    end
+    title(session_strings{jj})
+    xlabel('Difference in Onset Time (sec)')
+    ylabel('P(Choosing Left)')
+    legend('Ref 4s shorter','','Ref 2s shorter','','Ref equal dur','','Ref 2s longer','','Ref 4s longer','')
+end

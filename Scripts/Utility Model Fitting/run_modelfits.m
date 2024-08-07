@@ -3,9 +3,7 @@
 
 
 %% Load Data
-load("../../Data/Processed Data/processed_from_raw.mat")
-% load("../Data Processing/processed_data_noBTT.mat")
-% load("../../Data/Processed Data/subsetofchoices_processed.mat")
+load("../../Data/Processed Data/processed_data.mat")
 addpath('../Supporting Functions')
 
 %% Initialize Params
@@ -151,6 +149,13 @@ switch utilitymodeltypes(ii)
         lb = [gamma_lb,gamma_lb,beta_lb,rel_weight_lb];
         gammaPhysIs= 0; % OVERALL TIME
         gammaTaskIs=-1e-3; %TIME IN TASK
+        betais=1e-3;
+        rel_weight = 1;
+    case 9 % Time Sensitive Force Dot Only
+        ub = [0,gamma_ub,beta_ub,1];
+        lb = [0,gamma_lb,beta_lb,1];
+        gammaPhysIs= 0;
+        gammaTaskIs=0;
         betais=1e-3;
         rel_weight = 1;
 end

@@ -107,6 +107,17 @@ for s = 1:numsubjs
 %                 T.framedata(ii).y_force = -cosd(270 - el_ang(s))*T.framedata(ii).ft_xworld + sind(270 - el_ang(s))*T.framedata(ii).ft_zworld;
                 startind = find(T.framedata(ii).statenumber == 6,1,'first');
                 endind = find(T.framedata(ii).statenumber == 7,1,'first');
+                y_smooth = filtfilt(b,a,T.framedata(ii).y_profile_px);
+                dy_smooth = diff(y_smooth)./diff(T.framedata(ii).time);
+
+
+                y_smooth_subset = filtfilt(b,a,T.framedata(ii).y_profile_px(startind:endind));
+                mvc_subset = (1024- y_smooth_subset - 100)/824;%convert px to %mvc
+                time_subset = T.framedata(ii).time(startind:endind) - T.framedata(ii).time(startind);
+                % Find Peak Rate of Force
+                rate_mvc_subset = diff(mvc_subset)./diff(time_subset);
+
+
                 % Calculate Peak Rate of Force "Vigor"
                 if T.choice(ii) == 1 % left
 %                     coeff = ones(1,34)/34;
@@ -115,8 +126,8 @@ for s = 1:numsubjs
 %                     fc = 10;%Hz cutoff freq
 %                     Wn = fc/(fs/2);
 %                     [b,a] = butter(4,Wn,'low');
-                    y_smooth = filtfilt(b,a,T.framedata(ii).y_profile_px);
-                    dy_smooth = diff(y_smooth)./diff(T.framedata(ii).time);
+%                     y_smooth = filtfilt(b,a,T.framedata(ii).y_profile_px);
+%                     dy_smooth = diff(y_smooth)./diff(T.framedata(ii).time);
                     % Constrain to area of force generation for hill or valley
                     windowstart = startind+T.Ltoponset(ii)*200 - 100;
                     windowend = startind+(T.Ltoponset(ii)+T.Lrampuptime2top(ii)+T.Ltopduration(ii)+T.Lrampdowntime2base(ii))*200 + 100;
@@ -127,6 +138,49 @@ for s = 1:numsubjs
                     dF_smooth = diff(F_smooth)./diff(T.framedata(ii).time);
                     T.peakRateOfForceUphill_N(ii) = -1*min(dF_smooth(windowstart:windowend));
                     T.peakRateOfForceDownhill_N(ii) = -1*max(dF_smooth(windowstart:windowend));
+                    % New Rev 1,
+                    % Base 1 Indices
+                    [~,base1_startind] = min(abs(time_subset - T.Lrampuptime2base(ii)));
+                    [~,base1_endind] = min(abs(time_subset - T.Ltoponset(ii)));
+
+                    % Hill / Valley Indices
+                    [~,hillvalley_startind] = min(abs(time_subset - (T.Ltoponset(ii) + T.Lrampuptime2top(ii))));
+                    [~,hillvalley_endind] = min(abs(time_subset - (T.Ltoponset(ii) + T.Lrampuptime2top(ii) + T.Ltopduration(ii))));
+
+                    % Base 2 Indicies
+                    [~,base2_startind] = min(abs(time_subset - (T.Ltoponset(ii) + T.Lrampuptime2top(ii) + T.Ltopduration(ii) + T.Lrampdowntime2base(ii))));
+                    [~,base2_endind] = min(abs(time_subset - (T.Ltrialduration(ii) - T.Lrampdowntime2end(ii))));
+
+                    % Calculate Mean Forces 
+                    % Base 1
+                    T.avg_force_base1(ii) = mean(mvc_subset(base1_startind:base1_endind));
+                    T.std_force_base1(ii) = std(mvc_subset(base1_startind:base1_endind));
+                    % Hill/Valley
+                    T.avg_force_hillvalley(ii) = mean(mvc_subset(hillvalley_startind:hillvalley_endind));
+                    T.std_force_hillvalley(ii) = std(mvc_subset(hillvalley_startind:hillvalley_endind));
+                    % Base 2
+                    T.avg_force_base2(ii) = mean(mvc_subset(base2_startind:base2_endind));
+                    T.std_force_base2(ii) = std(mvc_subset(base2_startind:base2_endind));
+
+                    % Find Overshoot and Peak Rate, Ramp  +/- 1 second
+                    if T.Ltoplevel(ii) == 0.5 % Hill
+                        % Ramp 1 (uphill)
+                        T.overshoot_ramp1(ii) = max(mvc_subset((base1_endind-200):(hillvalley_startind+200)));
+                        T.peakrate_mvc_ramp1(ii) = max(rate_mvc_subset((base1_endind-200):(hillvalley_startind+200)));
+                        
+                        % Ramp 2 (downhill)
+                        T.overshoot_ramp2(ii) = min(mvc_subset((hillvalley_startind-200):(base2_startind+200)));
+                        T.peakrate_mvc_ramp2(ii) = min(rate_mvc_subset((hillvalley_startind-200):(base2_startind+200)));
+                    else % Valley
+                        % Ramp 1 (downhill)
+                        T.overshoot_ramp1(ii) = min(mvc_subset((base1_endind-200):(hillvalley_startind+200)));            
+                        T.peakrate_mvc_ramp1(ii) = min(rate_mvc_subset((base1_endind-200):(hillvalley_startind+200)));
+                        % Ramp 2 (uphill)
+                        T.overshoot_ramp2(ii) = max(mvc_subset((hillvalley_startind-200):(base2_startind+200)));                
+                        T.peakrate_mvc_ramp2(ii) = max(rate_mvc_subset((hillvalley_startind-200):(base2_startind+200)));
+                    end
+
+
                 elseif T.choice(ii) == 2 % right
 %                     coeff = ones(1,34)/34;
 %                     y_smooth = filtfilt(coeff,1,T.y_profile_px)';
@@ -134,8 +188,8 @@ for s = 1:numsubjs
 %                     fc = 10;%Hz cutoff freq
 %                     Wn = fc/(fs/2);
 %                     [b,a] = butter(4,Wn,'low');
-                    y_smooth = filtfilt(b,a,T.framedata(ii).y_profile_px);
-                    dy_smooth = diff(y_smooth)./diff(T.framedata(ii).time);
+%                     y_smooth = filtfilt(b,a,T.framedata(ii).y_profile_px);
+%                     dy_smooth = diff(y_smooth)./diff(T.framedata(ii).time);
                     % Constrain to area of force generation for hill or valley
                     windowstart = startind+T.Rtoponset(ii)*200 - 100;
                     windowend = startind+(T.Rtoponset(ii)+T.Rrampuptime2top(ii)+T.Rtopduration(ii)+T.Rrampdowntime2base(ii))*200 + 100;
@@ -146,12 +200,67 @@ for s = 1:numsubjs
                     dF_smooth = diff(F_smooth)./diff(T.framedata(ii).time);
                     T.peakRateOfForceUphill_N(ii) = -1*min(dF_smooth(windowstart:windowend));
                     T.peakRateOfForceDownhill_N(ii) = -1*max(dF_smooth(windowstart:windowend));
+
+                    % New Rev 1,
+                    % Base 1 Indices
+                    [~,base1_startind] = min(abs(time_subset - T.Rrampuptime2base(ii)));
+                    [~,base1_endind] = min(abs(time_subset - T.Rtoponset(ii)));
+
+                    % Hill / Valley Indices
+                    [~,hillvalley_startind] = min(abs(time_subset - (T.Rtoponset(ii) + T.Rrampuptime2top(ii))));
+                    [~,hillvalley_endind] = min(abs(time_subset - (T.Rtoponset(ii) + T.Rrampuptime2top(ii) + T.Rtopduration(ii))));
+
+                    % Base 2 Indicies
+                    [~,base2_startind] = min(abs(time_subset - (T.Rtoponset(ii) + T.Rrampuptime2top(ii) + T.Rtopduration(ii) + T.Rrampdowntime2base(ii))));
+                    [~,base2_endind] = min(abs(time_subset - (T.Rtrialduration(ii) - T.Rrampdowntime2end(ii))));
+                    % Calculate Mean Forces 
+                    % Base 1
+                    T.avg_force_base1(ii) = mean(mvc_subset(base1_startind:base1_endind));
+                    T.std_force_base1(ii) = std(mvc_subset(base1_startind:base1_endind));
+                    % Hill/Valley
+                    T.avg_force_hillvalley(ii) = mean(mvc_subset(hillvalley_startind:hillvalley_endind));
+                    T.std_force_hillvalley(ii) = std(mvc_subset(hillvalley_startind:hillvalley_endind));
+                    % Base 2
+                    T.avg_force_base2(ii) = mean(mvc_subset(base2_startind:base2_endind));
+                    T.std_force_base2(ii) = std(mvc_subset(base2_startind:base2_endind));
+                    % Find Overshoot and Peak Rate, Ramp  +/- 1 second
+                    if T.Rtoplevel(ii) == 0.5 % Hill
+                        % Ramp 1 (uphill)
+                        T.overshoot_ramp1(ii) = max(mvc_subset((base1_endind-200):(hillvalley_startind+200)));
+                        T.peakrate_mvc_ramp1(ii) = max(rate_mvc_subset((base1_endind-200):(hillvalley_startind+200)));
+                        
+                        % Ramp 2 (downhill)
+                        T.overshoot_ramp2(ii) = min(mvc_subset((hillvalley_startind-200):(base2_startind+200)));
+                        T.peakrate_mvc_ramp2(ii) = min(rate_mvc_subset((hillvalley_startind-200):(base2_startind+200)));
+                    else % Valley
+                        % Ramp 1 (downhill)
+                        T.overshoot_ramp1(ii) = min(mvc_subset((base1_endind-200):(hillvalley_startind+200)));            
+                        T.peakrate_mvc_ramp1(ii) = min(rate_mvc_subset((base1_endind-200):(hillvalley_startind+200)));
+                        % Ramp 2 (uphill)
+                        T.overshoot_ramp2(ii) = max(mvc_subset((hillvalley_startind-200):(base2_startind+200)));                
+                        T.peakrate_mvc_ramp2(ii) = max(rate_mvc_subset((hillvalley_startind-200):(base2_startind+200)));
+                    end
+
+
                 else
                     T.peakRateOfForceUphill_px(ii) = NaN;
                     T.peakRateOfForceDownhill_px(ii) = NaN;
                     T.peakRateOfForceUphill_N(ii) = NaN;
                     T.peakRateOfForceDownhill_N(ii) = NaN;
-                end    
+                    T.avg_force_base1(ii) = NaN;
+                    T.std_force_base1(ii) = NaN;
+                    T.avg_force_hillvalley(ii) = NaN;
+                    T.std_force_hillvalley(ii) = NaN;
+                    T.avg_force_base2(ii) = NaN;
+                    T.std_force_base2(ii) = NaN;
+                    T.overshoot_ramp1(ii) = NaN;
+                    T.peakrate_mvc_ramp1(ii) = NaN;
+                    T.overshoot_ramp2(ii) = NaN;
+                    T.peakrate_mvc_ramp2(ii) = NaN;
+
+                end
+                
+
                 for jj = startind:endind
                     if T.choice(ii) == 1 % Left
 %                         T.accuracy(ii) = T.accuracy(ii) + abs(recreateY(T.framedata(ii).adc2(jj),T.framedata(ii).adc4(jj),...
@@ -176,6 +285,18 @@ for s = 1:numsubjs
                 T.peakRateOfForceDownhill_px(ii) = NaN;
                 T.peakRateOfForceUphill_N(ii) = NaN;
                 T.peakRateOfForceDownhill_N(ii) = NaN;
+                % Add More Performance Measures
+                T.avg_force_base1(ii) = NaN;
+                T.std_force_base1(ii) = NaN;
+                T.avg_force_hillvalley(ii) = NaN;
+                T.std_force_hillvalley(ii) = NaN;
+                T.avg_force_base2(ii) = NaN;
+                T.std_force_base2(ii) = NaN;
+    
+                T.overshoot_ramp1(ii) = NaN;
+                T.peakrate_mvc_ramp1(ii) = NaN;
+                T.overshoot_ramp2(ii) = NaN;
+                T.peakrate_mvc_ramp2(ii) = NaN;
             end
         else
             T.choice(ii) = NaN;
@@ -185,6 +306,18 @@ for s = 1:numsubjs
             T.peakRateOfForceDownhill_px(ii) = NaN;
             T.peakRateOfForceUphill_N(ii) = NaN;
             T.peakRateOfForceDownhill_N(ii) = NaN;
+            % Add More Performance Measures
+            T.avg_force_base1(ii) = NaN;
+            T.std_force_base1(ii) = NaN;
+            T.avg_force_hillvalley(ii) = NaN;
+            T.std_force_hillvalley(ii) = NaN;
+            T.avg_force_base2(ii) = NaN;
+            T.std_force_base2(ii) = NaN;
+
+            T.overshoot_ramp1(ii) = NaN;
+            T.peakrate_mvc_ramp1(ii) = NaN;
+            T.overshoot_ramp2(ii) = NaN;
+            T.peakrate_mvc_ramp2(ii) = NaN;
         end
     end
 

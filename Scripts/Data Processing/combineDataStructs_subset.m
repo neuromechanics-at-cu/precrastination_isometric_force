@@ -34,6 +34,7 @@ for ii = 1:size(M_A,2)
                        M_B{ii}.framedata(start_fam:end_fam)']';
     M{ii}.framedata = M{ii}.framedata(start_fam:end_fam)';
     M{ii}.trialnumber = [1:length(start_fam:end_fam),(length(start_fam:end_fam) + 1):(2*length(start_fam:end_fam))]';
+    M{ii}.trialnumber_bysession = [1:length(start_fam:end_fam),1:length(start_fam:end_fam)]';
     M{ii}.trialtype = [M_A{ii}.trialtype(start_fam:end_fam);
                        max(M_A{ii}.trialtype(start_fam:end_fam)) + 1 + M_B{ii}.trialtype(start_fam:end_fam)]; 
     M{ii}.trialtypecount = [M_A{ii}.trialtypecount(start_fam:end_fam);
@@ -80,6 +81,7 @@ for ii = 1:size(M_A,2)
                              Mchoice_B{ii}.framedata(startind:endind)']';
     Mchoice{ii}.framedata = Mchoice{ii}.framedata';
     Mchoice{ii}.trialnumber = [1:length(startind:endind),(length(startind:endind) + 1):(2*length(startind:endind))]';
+    Mchoice{ii}.trialnumber_bysession = [1:length(startind:endind),1:length(startind:endind)]';
     Mchoice{ii}.Ltrialtype = [Mchoice_A{ii}.Ltrialtype(startind:endind);
                               max(Mchoice_A{ii}.Ltrialtype(startind:endind)) + 1 + Mchoice_B{ii}.Ltrialtype(startind:endind)];
     Mchoice{ii}.Rtrialtype = [Mchoice_A{ii}.Rtrialtype(startind:endind);
@@ -157,4 +159,15 @@ for ii = 1:size(M_A,2)
     % This is normed by all choices, not the subset specified above
     Mchoice{ii}.delibtime_nooutliers_normed = [Mchoice_A{ii}.delibtime_nooutliers_normed(startind:endind),...
                              Mchoice_B{ii}.delibtime_nooutliers_normed(startind:endind)]';
+    % New From Revision - Familiarization Trial Performance
+    Mchoice{ii}.avg_force_base1 = [Mchoice_A{ii}.avg_force_base1(startind:endind),Mchoice_B{ii}.avg_force_base1(startind:endind)]';
+    Mchoice{ii}.std_force_base1 = [Mchoice_A{ii}.std_force_base1(startind:endind),Mchoice_B{ii}.std_force_base1(startind:endind)]';
+    Mchoice{ii}.avg_force_hillvalley = [Mchoice_A{ii}.avg_force_hillvalley(startind:endind),Mchoice_B{ii}.avg_force_hillvalley(startind:endind)]';
+    Mchoice{ii}.std_force_hillvalley = [Mchoice_A{ii}.std_force_hillvalley(startind:endind),Mchoice_B{ii}.std_force_hillvalley(startind:endind)]';
+    Mchoice{ii}.avg_force_base2 = [Mchoice_A{ii}.avg_force_base2(startind:endind),Mchoice_B{ii}.avg_force_base2(startind:endind)]';
+    Mchoice{ii}.std_force_base2 = [Mchoice_A{ii}.std_force_base2(startind:endind),Mchoice_B{ii}.std_force_base2(startind:endind)]';
+    Mchoice{ii}.overshoot_ramp1 = [Mchoice_A{ii}.overshoot_ramp1(startind:endind),Mchoice_B{ii}.overshoot_ramp1(startind:endind)]';
+    Mchoice{ii}.peakrate_mvc_ramp1 = [Mchoice_A{ii}.peakrate_mvc_ramp1(startind:endind),Mchoice_B{ii}.peakrate_mvc_ramp1(startind:endind)]';
+    Mchoice{ii}.overshoot_ramp2 = [Mchoice_A{ii}.overshoot_ramp2(startind:endind),Mchoice_B{ii}.overshoot_ramp2(startind:endind)]';
+    Mchoice{ii}.peakrate_mvc_ramp2 = [Mchoice_A{ii}.peakrate_mvc_ramp2(startind:endind),Mchoice_B{ii}.peakrate_mvc_ramp2(startind:endind)]';
 end
