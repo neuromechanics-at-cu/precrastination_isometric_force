@@ -50,3 +50,9 @@ for ii = 1:size(combos,1)
     xlabel(var_str{combos(ii,1)})
     title([var_str{combos(ii,1)},' vs. ',var_str{combos(ii,2)}])
 end
+
+% And if we do this, then nothing is significant...
+bootci(10000,@nanmean,squeeze(sol(1,bestmodel,:)))
+bootci(10000,@nanmean,squeeze(sol(2,bestmodel,:)))
+bootci(10000,@nanmean,squeeze(sol(4,bestmodel,:)))
+

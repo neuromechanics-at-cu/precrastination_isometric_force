@@ -48,9 +48,9 @@ beq = [];
 
 % For Exponential
 % gamma_lb = -3;
-gamma_lb = -0.7; % 2023 Update based on SOL (and randomized starts causing NaN returns)
+gamma_lb = -1.5; % 2023 Update based on SOL (and randomized starts causing NaN returns)
 % gamma_ub = 3;
-gamma_ub = 0.7;% 2023 New update for the peicewise discount fxn (2)
+gamma_ub = 1.5;% 2023 New update for the peicewise discount fxn (2)
 beta_lb = 0;
 % beta_ub = 1; % Use this beta for exponential
 beta_ub = 1e6; % Update 2023, normed
