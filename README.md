@@ -4,8 +4,7 @@ This repo includes all scripts and processed data used to analyze results. Code 
 
 To reproduce all figures and tables run ```produce_all_figures_and_tables.m``` in ```/Scripts/Figure and Table Production/```
 
-
-Draft paper submitted, available on bioRxiv: https://www.biorxiv.org/content/10.1101/2024.01.20.576156v1
+Published article is available on Journal of Neurophysiology, here: https://journals.physiology.org/doi/abs/10.1152/jn.00040.2024 
 
 ### Dependencies
 You may need to install certain packages in MATLAB, such as the Signal Processing Toolbox, in order to run this code.
